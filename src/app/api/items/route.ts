@@ -45,6 +45,7 @@ export async function GET(request: Request) {
         id: i.id,
         name: i.name,
         price: i.price,
+        stock: i.stock,
         stallName: stallUser.stallName ?? `Stall ${stallNumber}`,
         stallNumber,
       })),
@@ -68,6 +69,8 @@ export async function POST(request: Request) {
     const body = await request.json();
     const name = String(body.name ?? "").trim();
     const price = Number(body.price);
+    const stockRaw = Number(body.stock);
+    const stock = Number.isFinite(stockRaw) && stockRaw >= 0 ? Math.floor(stockRaw) : 0;
 
     if (!name || !Number.isFinite(price) || price < 0) {
       return NextResponse.json({ error: "Valid name and price required." }, { status: 400 });
@@ -80,6 +83,7 @@ export async function POST(request: Request) {
         userId: session.user.id,
         name,
         price: priceMinor,
+        stock,
       },
     });
 

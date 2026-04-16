@@ -97,6 +97,14 @@ export async function POST(request: Request) {
         if (!item) {
           throw new Error("BAD_ITEM");
         }
+        if (item.stock < qty) {
+          throw new Error(`INSUFFICIENT_STOCK:${item.name}`);
+        }
+        await tx.item.update({
+          where: { id: item.id },
+          data: { stock: { decrement: qty } },
+        });
+
         const lineTotal = qty * item.price;
         total += lineTotal;
         prepared.push({
@@ -201,6 +209,9 @@ export async function POST(request: Request) {
   } catch (e) {
     console.error("invoice POST", e);
     const msg = e instanceof Error ? e.message : "";
+    if (msg.startsWith("INSUFFICIENT_STOCK:")) {
+      return NextResponse.json({ error: `Not enough stock for ${msg.split(":")[1]}.` }, { status: 409 });
+    }
     if (msg === "BAD_LINE") {
       return NextResponse.json({ error: "Invalid line in invoice." }, { status: 400 });
     }

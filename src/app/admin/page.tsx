@@ -9,6 +9,7 @@ type MenuItem = {
   id: string;
   name: string;
   price: number;
+  stock: number;
   stallName: string;
   stallNumber: number;
 };
@@ -88,6 +89,10 @@ export default function AdminPage() {
     setCart((prev) => {
       const idx = prev.findIndex((l) => l.itemId === item.id);
       if (idx === -1) {
+        if (q > item.stock) {
+          alert(`Cannot add ${q}. Only ${item.stock} in stock.`);
+          return prev;
+        }
         return [
           ...prev,
           {
@@ -101,7 +106,12 @@ export default function AdminPage() {
         ];
       }
       const next = [...prev];
-      next[idx] = { ...next[idx], quantity: next[idx].quantity + q };
+      const newQty = next[idx].quantity + q;
+      if (newQty > item.stock) {
+        alert(`Cannot add. Total exceeds ${item.stock} in stock.`);
+        return prev;
+      }
+      next[idx] = { ...next[idx], quantity: newQty };
       return next;
     });
   }
@@ -109,6 +119,11 @@ export default function AdminPage() {
   function setLineQuantity(itemId: string, qty: number) {
     if (qty < 1) {
       setCart((prev) => prev.filter((l) => l.itemId !== itemId));
+      return;
+    }
+    const itemStock = menuItems.find(i => i.id === itemId)?.stock ?? Number.MAX_SAFE_INTEGER;
+    if (qty > itemStock) {
+      alert(`Cannot set to ${qty}. Only ${itemStock} in stock.`);
       return;
     }
     setCart((prev) => prev.map((l) => (l.itemId === itemId ? { ...l, quantity: qty } : l)));
@@ -158,6 +173,7 @@ export default function AdminPage() {
         emailError: null,
       },
     });
+    void loadStallMenu(); // Refresh menu after checkout to update stock lengths!
   }
 
   return (
@@ -230,7 +246,14 @@ export default function AdminPage() {
                     className="flex flex-col justify-between rounded-xl border border-secondary/25 bg-white p-4 shadow-sm"
                   >
                     <div>
-                      <p className="font-medium text-ink">{item.name}</p>
+                      <p className="font-medium text-ink">
+                        {item.name}
+                        {item.stock !== undefined && (
+                          <span className="ml-2 text-xs font-normal text-secondary">
+                            ({item.stock} left)
+                          </span>
+                        )}
+                      </p>
                       <p className="mt-2 text-sm text-ink/80">{formatMoneyMinor(item.price)}</p>
                     </div>
                     <div className="mt-3 flex flex-wrap items-center gap-2">

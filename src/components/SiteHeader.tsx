@@ -33,15 +33,17 @@ export async function SiteHeader() {
           </span>
         </Link>
         <nav className="flex flex-wrap items-center gap-2 text-xs sm:gap-3 sm:text-sm">
-          <Link href="/scan" className="rounded-md px-2 py-1 hover:bg-white/10">
-            Scan QR
-          </Link>
           {u ? (
             <>
               {u.role === "STALL" && (
-                <Link href="/stall" className="rounded-md px-2 py-1 hover:bg-white/10">
-                  My stall
-                </Link>
+                <>
+                  <Link href="/scan" className="rounded-md px-2 py-1 hover:bg-white/10">
+                    Scan QR
+                  </Link>
+                  <Link href="/stall" className="rounded-md px-2 py-1 hover:bg-white/10">
+                    My stall
+                  </Link>
+                </>
               )}
               {u.role === "ADMIN" && (
                 <>
@@ -50,6 +52,9 @@ export async function SiteHeader() {
                   </Link>
                   <Link href="/admin/invoices" className="rounded-md px-2 py-1 hover:bg-white/10">
                     Invoices
+                  </Link>
+                  <Link href="/admin/stalls" className="rounded-md px-2 py-1 hover:bg-white/10">
+                    Stalls
                   </Link>
                 </>
               )}

@@ -44,7 +44,12 @@ export function ScanClient() {
       decodedRef.current = true;
       const h = html5Ref.current;
       if (h) {
-        void h.stop().then(() => h.clear()).finally(() => goRedeem(token));
+        try {
+          void h.stop().then(() => h.clear()).finally(() => goRedeem(token));
+        } catch (e) {
+          try { h.clear(); } catch (e2) {}
+          goRedeem(token);
+        }
       } else {
         goRedeem(token);
       }
@@ -84,7 +89,11 @@ export function ScanClient() {
       const h = html5Ref.current;
       html5Ref.current = null;
       if (h) {
-        void h.stop().then(() => h.clear()).catch(() => {});
+        try {
+          void h.stop().then(() => h.clear()).catch(() => {});
+        } catch (e) {
+          try { h.clear(); } catch (e2) {}
+        }
       }
     };
   }, [onDecoded]);

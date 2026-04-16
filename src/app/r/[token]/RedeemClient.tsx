@@ -3,11 +3,15 @@
 import { useState } from "react";
 import { formatMoneyMinor } from "@/lib/format";
 
-type Props = { token: string };
+type Props = { token: string; isInvalid?: boolean; isRedeemed?: boolean };
 
-export function RedeemClient({ token }: Props) {
-  const [status, setStatus] = useState<"idle" | "loading" | "done" | "error">("idle");
-  const [message, setMessage] = useState<string | null>(null);
+export function RedeemClient({ token, isInvalid, isRedeemed }: Props) {
+  const [status, setStatus] = useState<"idle" | "loading" | "done" | "error">(
+    isInvalid || isRedeemed ? "error" : "idle"
+  );
+  const [message, setMessage] = useState<string | null>(
+    isInvalid ? "Invalid invoice." : isRedeemed ? "This invoice was already redeemed." : null
+  );
   const [lines, setLines] = useState<
     { name: string; quantity: number; lineTotal: number; stallName: string }[] | null
   >(null);

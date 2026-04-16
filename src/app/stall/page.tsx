@@ -8,6 +8,7 @@ type Item = {
   id: string;
   name: string;
   price: number;
+  stock: number;
 };
 
 export default function StallPage() {
@@ -16,6 +17,7 @@ export default function StallPage() {
   const [loading, setLoading] = useState(true);
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
+  const [stock, setStock] = useState("0");
   const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
@@ -55,6 +57,7 @@ export default function StallPage() {
       body: JSON.stringify({
         name,
         price: Number(price),
+        stock: Number(stock),
       }),
     });
     const data = await res.json().catch(() => ({}));
@@ -64,6 +67,7 @@ export default function StallPage() {
     }
     setName("");
     setPrice("");
+    setStock("0");
     await load();
   }
 
@@ -86,15 +90,14 @@ export default function StallPage() {
       <div>
         <h1 className="text-xl font-semibold text-primary sm:text-2xl">My stall menu</h1>
         <p className="mt-1 text-sm text-ink/70">
-          Add dish or product names with price (INR). Stock is not tracked — the admin enters quantities when billing
-          customers.
+          Add dish or product names with price (INR) and their initial stock quantity. Quantities automatically update when admins generate bills.
         </p>
       </div>
 
       <section className="rounded-2xl border border-secondary/20 bg-white p-4 shadow-sm sm:p-6">
         <h2 className="text-sm font-semibold uppercase tracking-wide text-secondary">Add menu item</h2>
-        <form onSubmit={addItem} className="mt-4 grid gap-4 sm:grid-cols-3 sm:items-end">
-          <div className="sm:col-span-2">
+        <form onSubmit={addItem} className="mt-4 grid gap-4 lg:grid-cols-4 sm:items-end">
+          <div className="lg:col-span-2">
             <label className="text-xs font-medium text-ink/80">Name</label>
             <input
               required
@@ -115,7 +118,18 @@ export default function StallPage() {
               className="mt-1 w-full min-h-11 rounded-lg border border-secondary/35 bg-page px-3 py-2 text-base sm:min-h-0 sm:text-sm"
             />
           </div>
-          <div className="sm:col-span-3">
+          <div>
+            <label className="text-xs font-medium text-ink/80">Stock</label>
+            <input
+              type="number"
+              min={0}
+              required
+              value={stock}
+              onChange={(e) => setStock(e.target.value)}
+              className="mt-1 w-full min-h-11 rounded-lg border border-secondary/35 bg-page px-3 py-2 text-base sm:min-h-0 sm:text-sm"
+            />
+          </div>
+          <div className="lg:col-span-4">
             <button
               type="submit"
               className="rounded-lg bg-orange px-4 py-2 text-sm font-medium text-white shadow hover:opacity-95"
@@ -141,13 +155,14 @@ export default function StallPage() {
               <tr>
                 <th className="px-4 py-2 font-medium">Item</th>
                 <th className="px-4 py-2 font-medium">Price</th>
+                <th className="px-4 py-2 font-medium">Stock</th>
                 <th className="px-4 py-2 font-medium" />
               </tr>
             </thead>
             <tbody>
               {items.length === 0 ? (
                 <tr>
-                  <td colSpan={3} className="px-4 py-8 text-center text-ink/60">
+                  <td colSpan={4} className="px-4 py-8 text-center text-ink/60">
                     No items yet. Add your first menu entry above.
                   </td>
                 </tr>
@@ -156,6 +171,7 @@ export default function StallPage() {
                   <tr key={i.id} className="border-t border-peach/30 bg-white/40">
                     <td className="px-4 py-3 font-medium text-ink">{i.name}</td>
                     <td className="px-4 py-3">{formatMoneyMinor(i.price)}</td>
+                    <td className="px-4 py-3">{i.stock}</td>
                     <td className="px-4 py-3 text-right">
                       <button
                         type="button"
