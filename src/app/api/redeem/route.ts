@@ -1,7 +1,13 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getSession } from "@/lib/session";
 
 export async function POST(request: Request) {
+  const session = await getSession();
+  if (session.user?.role !== "STALL") {
+    return NextResponse.json({ error: "Only stalls can redeem invoices.", invalid: true }, { status: 403 });
+  }
+
   try {
     const body = await request.json();
     const token = String(body.token ?? "").trim();

@@ -37,12 +37,7 @@ export default function HomePage() {
           >
             Log in
           </Link>
-          <Link
-            href="/scan"
-            className="inline-flex items-center justify-center rounded-lg border border-secondary/40 bg-peach/30 px-5 py-2.5 text-sm font-medium text-primary hover:bg-peach/50"
-          >
-            Scan invoice QR
-          </Link>
+
         </div>
       </section>
 
