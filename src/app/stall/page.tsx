@@ -90,7 +90,8 @@ export default function StallPage() {
       <div>
         <h1 className="text-xl font-semibold text-primary sm:text-2xl">My stall menu</h1>
         <p className="mt-1 text-sm text-ink/70">
-          Add dish or product names with price (INR) and their initial stock quantity. Quantities automatically update when admins generate bills.
+          Add dish or product names with price (INR) and their initial stock quantity. Stock goes down when a bill is
+          redeemed at pickup, not when the admin creates the bill.
         </p>
       </div>
 

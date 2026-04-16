@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
+import { PasswordField } from "@/components/PasswordField";
 import { STALL_NUMBER_MAX, STALL_NUMBER_MIN } from "@/lib/stall-numbers";
 
 export default function RegisterPage() {
@@ -78,15 +79,12 @@ export default function RegisterPage() {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-ink">Password</label>
-            <input
-              type="password"
-              required
-              minLength={6}
-              autoComplete="new-password"
+            <PasswordField
+              label="Password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 w-full min-h-11 rounded-lg border border-secondary/35 bg-page px-3 py-2 text-base outline-none ring-primary/30 focus:ring-2 sm:min-h-0 sm:text-sm"
+              onChange={setPassword}
+              autoComplete="new-password"
+              minLength={6}
             />
             <p className="mt-1 text-xs text-ink/55">At least 6 characters.</p>
           </div>

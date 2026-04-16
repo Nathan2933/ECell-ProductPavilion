@@ -1,5 +1,6 @@
 import { randomBytes } from "crypto";
 import { NextResponse } from "next/server";
+import { Prisma } from "@prisma/client";
 import { formatMoneyMinor } from "@/lib/format";
 import { buildInvoicePdf } from "@/lib/pdf-invoice";
 import { sendInvoiceEmail } from "@/lib/mail";
@@ -93,17 +94,17 @@ export async function POST(request: Request) {
         if (!line.itemId || qty < 1) {
           throw new Error("BAD_LINE");
         }
-        const item = await tx.item.findUnique({ where: { id: line.itemId } });
+        // Stock is reduced on redemption only; here we only ensure enough is available to sell.
+        const rows = await tx.$queryRaw<Array<{ id: string; name: string; price: number; stock: number }>>(
+          Prisma.sql`SELECT id, name, price, stock FROM Item WHERE id = ${line.itemId}`
+        );
+        const item = rows[0];
         if (!item) {
           throw new Error("BAD_ITEM");
         }
         if (item.stock < qty) {
           throw new Error(`INSUFFICIENT_STOCK:${item.name}`);
         }
-        await tx.item.update({
-          where: { id: item.id },
-          data: { stock: { decrement: qty } },
-        });
 
         const lineTotal = qty * item.price;
         total += lineTotal;
@@ -113,6 +114,26 @@ export async function POST(request: Request) {
           unitPrice: item.price,
           lineTotal,
         });
+      }
+
+      const sellers = await tx.item.findMany({
+        where: { id: { in: prepared.map((p) => p.itemId) } },
+        select: {
+          id: true,
+          user: { select: { stallNumber: true, role: true } },
+        },
+      });
+      if (sellers.length !== prepared.length) {
+        throw new Error("BAD_ITEM");
+      }
+      for (const row of sellers) {
+        if (row.user.role !== "STALL" || row.user.stallNumber == null) {
+          throw new Error("BAD_SELLER");
+        }
+      }
+      const stallNumbers = new Set(sellers.map((s) => s.user.stallNumber!));
+      if (stallNumbers.size !== 1) {
+        throw new Error("MULTI_STALL");
       }
 
       const invoice = await tx.invoice.create({
@@ -217,6 +238,17 @@ export async function POST(request: Request) {
     }
     if (msg === "BAD_ITEM") {
       return NextResponse.json({ error: "One or more items are no longer available." }, { status: 409 });
+    }
+    if (msg === "MULTI_STALL") {
+      return NextResponse.json(
+        {
+          error: "All items in one bill must be from the same stall so the correct stall can redeem the QR.",
+        },
+        { status: 400 }
+      );
+    }
+    if (msg === "BAD_SELLER") {
+      return NextResponse.json({ error: "One or more items are not linked to a stall menu." }, { status: 400 });
     }
     const detail = e instanceof Error ? e.message : String(e);
     return NextResponse.json(

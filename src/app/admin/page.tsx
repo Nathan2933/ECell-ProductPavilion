@@ -173,7 +173,7 @@ export default function AdminPage() {
         emailError: null,
       },
     });
-    void loadStallMenu(); // Refresh menu after checkout to update stock lengths!
+    void loadStallMenu(); // Refresh menu (e.g. if another session redeemed since load)
   }
 
   return (
@@ -191,7 +191,7 @@ export default function AdminPage() {
         </div>
         <p className="mt-1 text-sm text-ink/70">
           Enter stall #1–30 to load a menu. Set quantities, add customer name and email (required), then generate the
-          bill.
+          bill. All lines in one invoice must be from the same stall so only that stall can redeem the QR at pickup.
         </p>
       </div>
 

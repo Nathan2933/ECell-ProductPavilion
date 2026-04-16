@@ -24,8 +24,8 @@ model Item {
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   name      String
-  price     Int // minor units (e.g. paise); no stock field — menu only
-  stock     Int @default(0)
+  price     Int // minor units (e.g. paise)
+  stock     Int @default(0) // decremented when the stall redeems the invoice (pickup)
   createdAt DateTime @default(now())
   lines     InvoiceLine[]
 }

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { PasswordField } from "@/components/PasswordField";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -78,7 +79,7 @@ export default function LoginPage() {
                 autoComplete="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin@event.local"
+                placeholder="admin@productpavilion.tce"
                 className="mt-1 w-full min-h-11 rounded-lg border border-secondary/35 bg-page px-3 py-2 text-base outline-none ring-primary/30 focus:ring-2 sm:min-h-0 sm:text-sm"
               />
             </div>
@@ -96,17 +97,12 @@ export default function LoginPage() {
               />
             </div>
           )}
-          <div>
-            <label className="block text-sm font-medium text-ink">Password</label>
-            <input
-              type="password"
-              required
-              autoComplete="current-password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 w-full min-h-11 rounded-lg border border-secondary/35 bg-page px-3 py-2 text-base outline-none ring-primary/30 focus:ring-2 sm:min-h-0 sm:text-sm"
-            />
-          </div>
+          <PasswordField
+            label="Password"
+            value={password}
+            onChange={setPassword}
+            autoComplete="current-password"
+          />
           {error && (
             <p className="text-sm text-red-700" role="alert">
               {error}
